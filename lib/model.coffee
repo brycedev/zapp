@@ -1,42 +1,47 @@
-import { getFile, putFile } from 'blockstack'
-# import { uuid } from './utils'
+import * as blockstack from 'blockstack'
 
 class Model
   constructor: (data) -> @attrs[k] = v for k,v of data
-  filePathForId: (id) -> "#{@path}/#{id}.json"
   save: (encrypt = false) ->
     new Promise(resolve, reject) =>
       @attrs.createdAt = Date.now() || @attrs.createdAt
       @attrs.updatedAt = Date.now()
-      await putFile @filePathForId(@attrs.id), JSON.stringify(@attrs),  encrypt: encrypt
+      await blockstack.putFile "#{@path()}/#{@attrs.id}.json", JSON.stringify(@attrs),  encrypt: encrypt
       resolve()
   @all: (id, options = {}) =>
+    session = new blockstack.UserSession()
+    throw 'unauthenticated' unless session.isUserSignedIn() is true
     collection = []
-    models = JSON.parse await getFile "#{@path}.json", options
+    models = JSON.parse await blockstack.getFile "#{@path()}.json", options
     for i in models
-      model = JSON.parse await getFile @filePathForId(id), options
+      model = JSON.parse await blockstack.getFile "#{@path()}/#{id}.json", options
       collection.push new @ model
     collection
   @find: (id, options = {}) =>
-    model = JSON.parse await getFile @filePathForId(id), options
+    session = new blockstack.UserSession()
+    throw 'unauthenticated' unless session.isUserSignedIn() is true
+    model = JSON.parse await blockstack.getFile "#{@path()}/#{id}.json", options
     new @ model
-  @findOther: (username, id, options = {}) =>
+  @findOther: (username, id, options = {}) ->
+    session = new blockstack.UserSession()
     opts =
       app: window.location.host
       username: username
     opts[k] = options[k] for k,v of options
-    model = JSON.parse await getFile @filePathForId(id), opts
+    model = JSON.parse await session.getFile "#{@path()}/#{id}.json", opts
     new @ model
   @findOthers: (username, options = {}) =>
+    session = new blockstack.UserSession()
     collection = []
     opts =
       app: window.location.host
       username: username
     opts[k] = options[k] for k,v of options
-    models = JSON.parse await getFile "shared/#{@path}.json", options
+    models = JSON.parse await session.getFile "shared/#{@path()}/#{id}.json", options
     for i in models
-      model = JSON.parse await getFile @filePathForId(id), opts
+      model = JSON.parse await session.getFile "#{@path()}/#{id}.json", opts
       collection.push new @ model
     collection
+  @path: (path) -> 'models'
 
 export default Model
