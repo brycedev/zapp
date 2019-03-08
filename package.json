@@ -1,6 +1,10 @@
 {
   "name": "@brycedev/zapp",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brycedev/zapp.git"
+  },
   "scripts": {
     "build": "coffee -o src/ -c lib/ && pack build",
     "publish": "pack publish"
