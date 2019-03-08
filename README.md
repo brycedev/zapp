@@ -1,6 +1,6 @@
 # zapp ⚡️
 
-zapp is a client library for rapid dapp development
+zapp is a client library for rapid blockstack dapp development
 
 ## what is this?
 
