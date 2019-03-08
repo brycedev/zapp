@@ -1,0 +1,26 @@
+{
+  "name": "@brycedev/zapp",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "coffee -o src/ -c lib/ && pack build",
+    "publish": "pack publish"
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg"
+      ],
+      [
+        "@pika/plugin-build-web"
+      ]
+    ]
+  },
+  "dependencies": {
+    "@pika/plugin-build-web": "^0.3.14",
+    "@pika/plugin-bundle-web": "^0.3.14",
+    "@pika/plugin-standard-pkg": "^0.3.14",
+    "blockstack": "^19.0.0",
+    "ipfs": "^0.33.0",
+    "orbit-db": "^0.19.9"
+  }
+}
