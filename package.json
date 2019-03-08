@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "coffee -o src/ -c lib/ && pack build",
-    "publish": "pack publish"
+    "pub": "pack publish"
   },
   "@pika/pack": {
     "pipeline": [
