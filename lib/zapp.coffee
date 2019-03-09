@@ -3,7 +3,6 @@ import { UserSession } from 'blockstack'
 class Zapp
   @boot: (options = {}) ->
     { appId } = options
-    @appId = appId
     window.zappboot = true
   @login: ->
     throw 'please boot zapp, first' unless window.zappboot is true

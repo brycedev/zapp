@@ -8,13 +8,13 @@ class Model
       @attrs.updatedAt = Date.now()
       await blockstack.putFile "#{@path()}/#{@attrs.id}.json", JSON.stringify(@attrs),  encrypt: encrypt
       resolve()
-  @all: (id, options = {}) =>
+  @all: (options = {}) =>
     session = new blockstack.UserSession()
     throw 'unauthenticated' unless session.isUserSignedIn() is true
     collection = []
     models = JSON.parse await blockstack.getFile "#{@path()}.json", options
     for i in models
-      model = JSON.parse await blockstack.getFile "#{@path()}/#{id}.json", options
+      model = JSON.parse await blockstack.getFile "#{@path()}/#{i}.json", options
       collection.push new @ model
     collection
   @find: (id, options = {}) =>
@@ -42,6 +42,8 @@ class Model
       model = JSON.parse await session.getFile "#{@path()}/#{id}.json", opts
       collection.push new @ model
     collection
-  @path: (path) -> 'models'
+  @index: -> false
+  @path: -> 'models'
+  @timestamp: -> true
 
 export default Model
