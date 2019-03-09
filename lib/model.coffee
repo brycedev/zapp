@@ -25,8 +25,8 @@ class Model
   @findOther: (username, id, options = {}) ->
     session = new blockstack.UserSession()
     opts =
-      app: window.location.host
       username: username
+      decrypt: false
     opts[k] = options[k] for k,v of options
     model = JSON.parse await session.getFile "#{@path()}/#{id}.json", opts
     new @ model
@@ -34,8 +34,8 @@ class Model
     session = new blockstack.UserSession()
     collection = []
     opts =
-      app: window.location.host
       username: username
+      decrypt: false
     opts[k] = options[k] for k,v of options
     models = JSON.parse await session.getFile "shared/#{@path()}/#{id}.json", options
     for i in models
