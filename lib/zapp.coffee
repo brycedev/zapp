@@ -1,22 +1,20 @@
 import { UserSession } from 'blockstack'
 
 class Zapp
-  @boot: (options = {}) ->
-    { appId } = options
-    window.zappboot = true
+  @boot: (options = {}) -> window.zapp = appId: options.appId
+  @guard: ->
+    throw 'please boot zapp' unless window.zapp?.appId?
+    @session = new UserSession()
   @login: ->
-    throw 'please boot zapp, first' unless window.zappboot is true
-    session = new UserSession()
-    session.redirectToSignIn()
+    @guard()
+    @session.redirectToSignIn()
   @logout: ->
-    throw 'please boot zapp, first' unless window.zappboot is true
-    session = new UserSession()
-    session.signUserOut() if @user() isnt false
+    @guard()
+    @session.signUserOut() if !@user()
   @user: ->
-    throw 'please boot zapp, first' unless window.zappboot is true
-    session = new UserSession()
+    @guard()
     user = false
-    user = session.loadUserData() if session.isUserSignedIn()
+    user = @session.loadUserData() if @session.isUserSignedIn()
     user
 
 export default Zapp
