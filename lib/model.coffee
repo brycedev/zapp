@@ -1,26 +1,30 @@
 import * as blockstack from 'blockstack'
 
 class Model
-  constructor: (data) -> @attrs[k] = v for k,v of data
+  constructor: (data) ->
+    @attrs = {}
+    @attrs[k] = v for k,v of data
+    @index = false
+    @timestamps = true
+  destroy: () ->
   save: (encrypt = false) ->
-    new Promise(resolve, reject) =>
-      @attrs.createdAt = Date.now() || @attrs.createdAt
-      @attrs.updatedAt = Date.now()
-      await blockstack.putFile "#{@path()}/#{@attrs.id}.json", JSON.stringify(@attrs),  encrypt: encrypt
-      resolve()
+    @attrs.id = blockstack.makeUUID4().replace('-', '').toString(10) || @attrs.id
+    @attrs.createdAt = Date.now() || @attrs.createdAt if @timestamps
+    @attrs.updatedAt = Date.now() if @timestamps
+    await blockstack.putFile "#{@path()}/#{@attrs.id}.json", JSON.stringify(@attrs),  encrypt: encrypt
   @all: (options = {}) =>
     session = new blockstack.UserSession()
     throw 'unauthenticated' unless session.isUserSignedIn() is true
     collection = []
-    models = JSON.parse await blockstack.getFile "#{@path()}.json", options
+    models = JSON.parse await session.getFile "#{@path()}.json", options
     for i in models
-      model = JSON.parse await blockstack.getFile "#{@path()}/#{i}.json", options
+      model = JSON.parse await session.getFile "#{@path()}/#{i}.json", options
       collection.push new @ model
     collection
   @find: (id, options = {}) =>
     session = new blockstack.UserSession()
     throw 'unauthenticated' unless session.isUserSignedIn() is true
-    model = JSON.parse await blockstack.getFile "#{@path()}/#{id}.json", options
+    model = JSON.parse await session.getFile "#{@path()}/#{id}.json", options
     new @ model
   @findOther: (username, id, options = {}) ->
     session = new blockstack.UserSession()
@@ -42,8 +46,8 @@ class Model
       model = JSON.parse await session.getFile "#{@path()}/#{id}.json", opts
       collection.push new @ model
     collection
-  @index: -> false
-  @path: -> 'models'
-  @timestamp: -> true
-
+  @path: ->
+    name = @constructor.name.toLowerCase()
+    console.log name
+    name
 export default Model
